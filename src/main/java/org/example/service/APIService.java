@@ -1,7 +1,10 @@
 package org.example.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.example.model.APIParam;
+import org.example.model.ModelPlatform;
+import org.example.model.ModelResponse;
 
 import java.io.IOException;
 import java.net.URI;
@@ -10,6 +13,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 public class APIService {
+    private final HttpClient httpClient;
+    private final Dotenv dotenv;
 
     private static APIService instance = new APIService();
 
@@ -18,9 +23,6 @@ public class APIService {
         dotenv = Dotenv.load();
     }
 
-    private final HttpClient httpClient;
-    private final Dotenv dotenv;
-
     public static APIService getInstance() {
         if (instance == null) {
             instance = new APIService();
@@ -28,9 +30,21 @@ public class APIService {
         return instance;
     }
 
-    public String callAPI(APIParam apiParam) throws IOException, InterruptedException {
-        String url = "https://api.groq.com/openai/v1/chat/completions";
-        String token = dotenv.get("GROQ_KEY");
+    public String callAPI(APIParam apiParam) throws Exception {
+        String url = "";
+        String token = "";
+
+        switch (apiParam.model()) {
+            case GROQ_LLAMA -> {
+                url = "https://api.groq.com/openai/v1/chat/completions";
+                token = dotenv.get("GROQ_KEY");
+            }
+            case TOGETHER_LLAMA -> {
+                url = "https://api.together.xyz/v1/chat/completions";
+                token = dotenv.get("TOGETHER_KEY");
+            }
+        }
+
         String body = """
                 {
                     "messages": [
@@ -45,7 +59,8 @@ public class APIService {
                     ],
                         "model": "%s"
                 }
-                """.formatted(apiParam.prompt(), apiParam.model());
+                """.formatted(apiParam.prompt(), apiParam.model().name);
+
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .POST(HttpRequest.BodyPublishers.ofString(body))
@@ -54,6 +69,10 @@ public class APIService {
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        return response.body();
+
+        String responseBody = response.body();
+        ObjectMapper objectMapper = new ObjectMapper();
+        ModelResponse modelResponse = objectMapper.readValue(responseBody, ModelResponse.class);
+        return modelResponse.choices().get(0).message().content();
     }
 }

@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.model.APIParam;
+import org.example.model.ModelType;
 import org.example.service.APIService;
 
 import java.io.IOException;
@@ -33,13 +34,14 @@ public class APIController extends HttpServlet {
 
             String prompt = req.getParameter("prompt");
             String model = req.getParameter("model");
+            ModelType modelType = ModelType.valueOf(model);
 
             PrintWriter out = resp.getWriter();
-            APIParam apiParam = new APIParam(prompt, model);
+            APIParam apiParam = new APIParam(prompt, modelType);
 
             try {
                 out.println(apiService.callAPI(apiParam));
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
