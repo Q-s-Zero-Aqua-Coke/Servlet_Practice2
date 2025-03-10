@@ -3,14 +3,14 @@ package org.example.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.example.model.APIParam;
-import org.example.model.ModelPlatform;
 import org.example.model.ModelResponse;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.HashMap;
+import java.util.Map;
 
 public class APIService {
     private final HttpClient httpClient;
@@ -50,7 +50,7 @@ public class APIService {
                     "messages": [
                     {
                         "role": "system",
-                        "content": "only korean character"
+                        "content": "markdown이 아닌 HTML형식으로 영어로 먼저 생각하고 한글로 작성해줘 "
                     },
                     {
                         "role": "user",
@@ -69,10 +69,12 @@ public class APIService {
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
         String responseBody = response.body();
         ObjectMapper objectMapper = new ObjectMapper();
         ModelResponse modelResponse = objectMapper.readValue(responseBody, ModelResponse.class);
-        return modelResponse.choices().get(0).message().content();
+        String content = modelResponse.choices().get(0).message().content();
+        Map<String, String> map = new HashMap<>();
+        map.put("content", content);
+        return objectMapper.writeValueAsString(map);
     }
 }

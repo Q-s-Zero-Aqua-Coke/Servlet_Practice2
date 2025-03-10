@@ -2,23 +2,68 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>메뉴 추천기</title>
+    <style>
+        @font-face {
+            font-family: 'CookieRun-Regular';
+            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/CookieRun-Regular.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+        * {
+            font-family: CookieRun-Regular,serif;
+            margin: 0;
+            padding: 0;
+        }
+        body > div {
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        #controller * {
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
-    <div>
-        <form id="controller">
-            <div>
-                <input id="prompt" placeholder="포름프트 입력">
-                <button type="submit">제출</button>
-            </div>
-            <div>
-                <select id="model">
-                    <option value="GROQ_LLAMA">GROQ</option>
-                    <option value="TOGETHER_LLAMA">TOGETHER</option>
-                </select>
-            </div>
-            <div id="result"></div>
-        </form>
-    </div>
+<div>
+    <form id="controller">
+        <div>
+            <input id="prompt" placeholder="포름프트 입력">
+            <button type="submit">제출</button>
+        </div>
+        <div>
+            <select id="model">
+                <option value="GROQ_LLAMA">GROQ</option>
+                <option value="TOGETHER_LLAMA">TOGETHER</option>
+            </select>
+        </div>
+        <div id="result"></div>
+    </form>
+</div>
+
+<script>
+    const controller = document.querySelector("#controller");
+    controller.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const prompt = document.querySelector("#prompt").value;
+        const model = document.querySelector("#model").value;
+
+        const response = await fetch(`./api?prompt=${prompt}&model=${model}`, {
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+        const result = await response.json();
+        document.querySelector("#result").innerHTML +=
+            `<h3>${model}</h3>
+             ${result.content}
+             <hr>
+            `
+    })
+</script>
 </body>
 </html>
