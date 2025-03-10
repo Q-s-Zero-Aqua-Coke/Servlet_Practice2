@@ -20,7 +20,7 @@ public class APIService {
 
     private APIService() {
         httpClient = HttpClient.newHttpClient();
-        dotenv = Dotenv.load();
+        dotenv = Dotenv.configure().ignoreIfMissing().load();
     }
 
     public static APIService getInstance() {

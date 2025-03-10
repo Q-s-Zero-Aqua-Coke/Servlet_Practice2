@@ -1,69 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>메뉴 추천기</title>
     <style>
         @font-face {
             font-family: 'CookieRun-Regular';
-            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/CookieRun-Regular.woff') format('woff');
+            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/CookieRun-Regular.woff')
+            format('woff');
             font-weight: normal;
             font-style: normal;
         }
         * {
-            font-family: CookieRun-Regular,serif;
+            font-family: CookieRun-Regular, serif;
             margin: 0;
             padding: 0;
+        }
+        body {
+            background-color: #f0f8ff; /* AliceBlue */
         }
         body > div {
             padding: 2rem;
             display: flex;
             flex-direction: column;
             align-items: center;
+            gap: 1rem; /* Increased gap */
+        }
+        #controller > div {
+            width: 100%;
+            display: flex;
             gap: 0.5rem;
+            align-items: center;
         }
         #controller * {
+            width: auto;
+        }
+        #prompt {
+            min-width: 300px;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            flex: 1;
+        }
+        #model {
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            flex: 0.5;
+        }
+        #controller button {
+            padding: 0.5rem 1rem;
+            background-color: #4caf50; /* Green */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #controller button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 1rem;
             width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 1rem;
+            background-color: #fff;
+        }
+        #result h3 {
+            margin-top: 0.5rem;
+            margin-bottom: 0.25rem;
+            color: #333;
+        }
+        #result hr {
+            border-top: 1px solid #ddd;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-<div>
+<div class="container">
+    <h1>메뉴 추천</h1>
     <form id="controller">
         <div>
-            <input id="prompt" placeholder="포름프트 입력">
-            <button type="submit">제출</button>
-        </div>
-        <div>
+            <input id="prompt" placeholder="무엇이든 물어보세요" />
             <select id="model">
                 <option value="GROQ_LLAMA">GROQ</option>
                 <option value="TOGETHER_LLAMA">TOGETHER</option>
             </select>
+            <button type="submit">제출</button>
         </div>
-        <div id="result"></div>
     </form>
+    <div id="result"></div>
 </div>
 
 <script>
-    const controller = document.querySelector("#controller");
-    controller.addEventListener("submit", async (event) => {
+    const controller = document.querySelector('#controller');
+    controller.addEventListener('submit', async (event) => {
         event.preventDefault();
 
-        const prompt = document.querySelector("#prompt").value;
-        const model = document.querySelector("#model").value;
+        const prompt = document.querySelector('#prompt').value;
+        const model = document.querySelector('#model').value;
 
         const response = await fetch(`./api?prompt=${prompt}&model=${model}`, {
             headers: {
-                "Content-Type": "application/json"
-            }
+                'Content-Type': 'application/json',
+            },
         });
         const result = await response.json();
-        document.querySelector("#result").innerHTML +=
-            `<h3>${model}</h3>
+        document.querySelector('#result').innerHTML += `<h3>${model}</h3>
              ${result.content}
              <hr>
-            `
-    })
+            `;
+    });
 </script>
 </body>
 </html>
